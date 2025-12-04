@@ -3,8 +3,8 @@ import { convertPdfToImage } from "lib/pdf2img";
 import { usePuterStore } from "lib/puter";
 import { generateUUID } from "lib/utils";
 
-import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router";
+import { useEffect, useState, type FormEvent } from "react";
+import { useLocation, useNavigate } from "react-router";
 import FileUploader from "~/components/FileUploader";
 import Navbar from "~/components/Navbar";
 
@@ -14,6 +14,13 @@ const upload = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusText, setStatusText] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const location = useLocation();
+
+    const next = location.search.split('next=')[1];
+    
+    useEffect(()=>{
+        if(!isLoading && !auth.isAuthenticated) navigate('/auth?next=/upload');
+    }, [auth.isAuthenticated])
 
   const handleFileSelect = (file: File | null) => {
     setFile(file);
@@ -86,7 +93,8 @@ const upload = () => {
     setStatusText("Analysis complete! Redirecting...");
 
     console.log(data);
-    setIsProcessing(false);
+    navigate(`/resume/${uuid}`);
+    
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
